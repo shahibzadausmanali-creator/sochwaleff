@@ -21,7 +21,7 @@
       "primaryColor": "#FFFFFF",
       "secondaryColor": "#111111",
       "heroAutoSlide": true,
-      "heroInterval": 6000,
+      "heroInterval": 3000,
       "showFeaturedArticles": true,
       "showLatestArticles": true,
       "showFeaturedVideos": true,
@@ -578,9 +578,9 @@
     },
     {
       "id": "slide-1792132562734",
-      "heading": "dfsfh",
+      "heading": "Slide 4",
       "subtitle": "",
-      "ctaText": "Explore Now",
+      "ctaText": "Explore",
       "ctaUrl": "#articles",
       "imageUrl": "/uploads/image_70ea6b8a-1792132556680-1224.jpg",
       "sortOrder": 4,
@@ -588,6 +588,15 @@
     }
   ],
   "media": [
+    {
+      "id": "med-1792143226890",
+      "fileName": "whatsapp_image_2026-10-13_at_9_30_47_pm-1792143226882-46.jpeg",
+      "originalName": "WhatsApp Image 2026-10-13 at 9.30.47 PM.jpeg",
+      "mimeType": "image/jpeg",
+      "size": 173201,
+      "url": "/uploads/whatsapp_image_2026-10-13_at_9_30_47_pm-1792143226882-46.jpeg",
+      "uploadedAt": "2026-10-16T09:33:46.890Z"
+    },
     {
       "id": "med-1792132556682",
       "fileName": "image_70ea6b8a-1792132556680-1224.jpg",
@@ -653,6 +662,22 @@
     }
   ],
   "auditLogs": [
+    {
+      "id": "aud-1792143226890-pyoe",
+      "action": "MEDIA_UPLOAD",
+      "actorEmail": "shahibzadausmanali@gmail.com",
+      "target": "WhatsApp Image 2026-10-13 at 9.30.47 PM.jpeg",
+      "timestamp": "2026-10-16T09:33:46.890Z",
+      "details": "Uploaded media file of size 169.1 KB"
+    },
+    {
+      "id": "aud-1792139851187-14l4",
+      "action": "SLIDE_UPDATE",
+      "actorEmail": "shahibzadausmanali@gmail.com",
+      "target": "Slide: .",
+      "timestamp": "2026-10-16T08:37:31.187Z",
+      "details": "Updated hero slide."
+    },
     {
       "id": "aud-1792132562734-9oqy",
       "action": "SLIDE_CREATE",

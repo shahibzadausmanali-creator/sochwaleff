@@ -309,17 +309,24 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   /* HERO SLIDE ACTIONS */
   const handleSaveSlide = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editingSlide || !editingSlide.heading || !editingSlide.imageUrl) {
-      showNotification('error', 'Heading and image URL are required');
+    if (!editingSlide || !editingSlide.imageUrl) {
+      showNotification('error', 'Slide image URL or file upload is required');
       return;
     }
+    const slideToSave = {
+      ...editingSlide,
+      heading: editingSlide.heading || 'Hero Slide',
+      subtitle: '',
+      ctaText: 'Explore',
+      ctaUrl: editingSlide.ctaUrl || '#articles'
+    };
     try {
       if (editingSlide.id) {
-        await api.updateSlide(editingSlide.id, editingSlide);
-        showNotification('success', 'Slide updated');
+        await api.updateSlide(editingSlide.id, slideToSave);
+        showNotification('success', 'Slide updated successfully');
       } else {
-        await api.createSlide(editingSlide);
-        showNotification('success', 'Slide added');
+        await api.createSlide(slideToSave);
+        showNotification('success', 'Hero slide uploaded with Explore & Watch Now CTAs');
       }
       setEditingSlide(null);
       loadAllData();
@@ -1075,23 +1082,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <div>
                   <h2 className="text-2xl font-bold font-editorial text-[#111111]">Hero Slider Editor</h2>
                   <p className="text-xs text-[#666666]">
-                    Configure homepage carousel slides, headings, subtitles, CTAs, and images.
+                    Upload 16:9 carousel slides with 3-second cycle animation and Explore &amp; Watch Now CTAs.
                   </p>
                 </div>
                 <button
                   onClick={() => setEditingSlide({
                     heading: '',
                     subtitle: '',
-                    ctaText: 'Explore Now',
+                    ctaText: 'Explore',
                     ctaUrl: '#articles',
-                    imageUrl: 'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?auto=format&fit=crop&w=1600&q=80',
+                    imageUrl: '',
                     sortOrder: slides.length + 1,
                     isActive: true
                   })}
                   className="flex items-center gap-2 px-4 py-2 bg-[#111111] hover:bg-neutral-800 text-white text-xs uppercase tracking-wider font-semibold transition-colors"
                 >
                   <Plus className="w-4 h-4" />
-                  <span>Add New Slide</span>
+                  <span>Upload New Slide</span>
                 </button>
               </div>
 
@@ -1100,8 +1107,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <div key={slide.id} className="bg-white border border-[#E5E5E5] p-5 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">
                     <img
                       src={slide.imageUrl}
-                      alt={slide.heading}
-                      className="w-full md:w-48 h-28 object-cover border border-[#E5E5E5] bg-neutral-900"
+                      alt="Slide preview"
+                      className="w-full md:w-56 aspect-[16/9] object-cover border border-[#E5E5E5] bg-neutral-900"
                     />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 text-xs text-[#666666] mb-1">
@@ -1111,19 +1118,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           {slide.isActive ? 'Active' : 'Disabled'}
                         </span>
                       </div>
-                      <h4 className={`text-lg font-bold text-black truncate ${/[\u0600-\u06FF]/.test(slide.heading) ? 'font-urdu' : ''}`}>
-                        {slide.heading}
-                      </h4>
-                      <p className="text-xs text-[#666666] line-clamp-1 mt-0.5">{slide.subtitle}</p>
-                      <div className="text-[11px] text-neutral-500 mt-1">
-                        CTA: &ldquo;{slide.ctaText}&rdquo; → {slide.ctaUrl}
+                      <div className="text-sm font-bold text-black flex items-center gap-2">
+                        <span>Slide #{slide.sortOrder}</span>
+                        <span className="text-xs font-normal text-neutral-500">(16:9 Full Brightness)</span>
+                      </div>
+                      <div className="text-xs text-neutral-600 mt-1 flex items-center gap-2">
+                        <span className="px-2 py-0.5 bg-neutral-100 border text-[11px] font-bold">CTA: Explore</span>
+                        <span className="px-2 py-0.5 bg-neutral-100 border text-[11px] font-bold">CTA: Watch Now</span>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <button onClick={() => setEditingSlide(slide)} className="p-2 border border-neutral-300 hover:border-black rounded">
+                      <button onClick={() => setEditingSlide(slide)} className="p-2 border border-neutral-300 hover:border-black rounded" title="Edit slide">
                         <Edit3 className="w-4 h-4" />
                       </button>
-                      <button onClick={() => handleDeleteSlide(slide.id)} className="p-2 border border-red-200 text-red-600 hover:border-red-600 rounded">
+                      <button onClick={() => handleDeleteSlide(slide.id)} className="p-2 border border-red-200 text-red-600 hover:border-red-600 rounded" title="Delete slide">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
@@ -1890,38 +1898,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         </div>
       )}
 
-      {/* MODAL: HERO SLIDE EDITOR */}
+      {/* MODAL: HERO SLIDE EDITOR (Subtitle & Heading removed per user request) */}
       {editingSlide && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
           <div className="bg-white w-full max-w-lg border border-[#111111] shadow-2xl p-6 sm:p-8">
-            <h3 className="text-xl font-bold font-editorial text-black mb-4">
-              {editingSlide.id ? 'Edit Slide' : 'Add Hero Slide'}
+            <h3 className="text-xl font-bold font-editorial text-black mb-1">
+              {editingSlide.id ? 'Edit Hero Slide' : 'Upload Hero Slide'}
             </h3>
+            <p className="text-xs text-[#666666] mb-5">
+              Upload slide background image. Headings &amp; subtitles are omitted, keeping only Explore &amp; Watch Now CTAs.
+            </p>
+
             <form onSubmit={handleSaveSlide} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold uppercase text-neutral-700 mb-1">Slide Heading</label>
-                <input
-                  type="text"
-                  required
-                  value={editingSlide.heading || ''}
-                  onChange={(e) => setEditingSlide({ ...editingSlide, heading: e.target.value })}
-                  className="w-full px-3 py-2 text-sm border border-[#E5E5E5] focus:border-black focus:outline-none"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold uppercase text-neutral-700 mb-1">Subtitle / Tagline</label>
-                <textarea
-                  rows={2}
-                  value={editingSlide.subtitle || ''}
-                  onChange={(e) => setEditingSlide({ ...editingSlide, subtitle: e.target.value })}
-                  className="w-full px-3 py-2 text-xs border border-[#E5E5E5] focus:border-black focus:outline-none"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold uppercase text-neutral-700 mb-1">Slide Background Image</label>
+                <label className="block text-xs font-semibold uppercase text-neutral-700 mb-1">Slide Image (16:9 recommended)</label>
                 <div className="flex gap-2">
                   <input
                     type="text"
+                    required
+                    placeholder="Enter image URL or upload file..."
                     value={editingSlide.imageUrl || ''}
                     onChange={(e) => setEditingSlide({ ...editingSlide, imageUrl: e.target.value })}
                     className="w-full px-3 py-2 text-xs border border-[#E5E5E5] focus:border-black focus:outline-none"
@@ -1935,34 +1930,75 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       onChange={(e) => handleFileUpload(e, (url) => setEditingSlide({ ...editingSlide, imageUrl: url }))}
                     />
                   </label>
+                  <button
+                    type="button"
+                    onClick={() => openMediaPicker((url) => setEditingSlide({ ...editingSlide, imageUrl: url }))}
+                    className="px-3 py-2 bg-neutral-100 hover:bg-neutral-200 border text-xs font-semibold shrink-0"
+                  >
+                    Media
+                  </button>
                 </div>
               </div>
+
+              {editingSlide.imageUrl && (
+                <div className="relative aspect-[16/9] w-full bg-neutral-900 border border-[#E5E5E5] overflow-hidden">
+                  <img
+                    src={editingSlide.imageUrl}
+                    alt="Preview"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute bottom-2 left-2 flex items-center gap-2">
+                    <span className="px-2.5 py-1 bg-black text-white text-[10px] font-bold uppercase tracking-wider">
+                      Explore
+                    </span>
+                    <span className="px-2.5 py-1 bg-white text-black text-[10px] font-bold uppercase tracking-wider">
+                      Watch Now
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* CTAs Info */}
+              <div className="p-3 bg-neutral-50 border border-neutral-200 rounded text-xs space-y-1">
+                <div className="font-semibold text-neutral-900 flex items-center gap-1.5">
+                  <Check className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Only CTA Actions Displayed:</span>
+                </div>
+                <div className="text-neutral-600 text-[11px] pl-5">
+                  • <strong>Explore</strong>: Navigates to Articles / Bookstore<br />
+                  • <strong>Watch Now</strong>: Navigates to YouTube Video Library
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold uppercase text-neutral-700 mb-1">CTA Button Text</label>
+                  <label className="block text-xs font-semibold uppercase text-neutral-700 mb-1">Display Order</label>
                   <input
-                    type="text"
-                    value={editingSlide.ctaText || ''}
-                    onChange={(e) => setEditingSlide({ ...editingSlide, ctaText: e.target.value })}
-                    className="w-full px-3 py-2 text-xs border border-[#E5E5E5] focus:border-black focus:outline-none"
+                    type="number"
+                    value={editingSlide.sortOrder || 1}
+                    onChange={(e) => setEditingSlide({ ...editingSlide, sortOrder: Number(e.target.value) })}
+                    className="w-full px-3 py-2 text-xs border border-[#E5E5E5] focus:border-black focus:outline-none tabular-nums"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold uppercase text-neutral-700 mb-1">Destination URL</label>
-                  <input
-                    type="text"
-                    value={editingSlide.ctaUrl || ''}
-                    onChange={(e) => setEditingSlide({ ...editingSlide, ctaUrl: e.target.value })}
-                    className="w-full px-3 py-2 text-xs border border-[#E5E5E5] focus:border-black focus:outline-none font-mono"
-                  />
+                  <label className="block text-xs font-semibold uppercase text-neutral-700 mb-1">Status</label>
+                  <select
+                    value={editingSlide.isActive ? 'active' : 'inactive'}
+                    onChange={(e) => setEditingSlide({ ...editingSlide, isActive: e.target.value === 'active' })}
+                    className="w-full px-3 py-2 text-xs border border-[#E5E5E5] focus:border-black focus:outline-none"
+                  >
+                    <option value="active">Active (Visible)</option>
+                    <option value="inactive">Disabled</option>
+                  </select>
                 </div>
               </div>
+
               <div className="flex justify-end gap-2 pt-2">
                 <button type="button" onClick={() => setEditingSlide(null)} className="px-4 py-2 border text-xs font-semibold">
                   Cancel
                 </button>
-                <button type="submit" className="px-6 py-2 bg-[#111111] text-white text-xs uppercase tracking-wider font-bold">
-                  Save Slide
+                <button type="submit" className="px-6 py-2 bg-[#111111] text-white text-xs uppercase tracking-wider font-bold hover:bg-neutral-800 transition-colors">
+                  Save Hero Slide
                 </button>
               </div>
             </form>

@@ -34,19 +34,19 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#E5E5E5] transition-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between gap-8 h-20">
+        <div className="flex items-center justify-between gap-2 sm:gap-8 h-18 sm:h-20">
           
           {/* Zone 1: Brand Wordmark (Clean typography, logo removed) */}
-          <div className="flex items-center shrink-0">
+          <div className="flex items-center shrink-0 min-w-0">
             <button
               onClick={() => onNavigate('home')}
               className="flex items-center text-left group focus:outline-none"
             >
               <div className="flex flex-col">
-                <span className="font-editorial text-2xl font-bold tracking-tight text-[#111111] leading-none">
+                <span className="font-editorial text-xl sm:text-2xl font-bold tracking-tight text-[#111111] leading-none">
                   {settings.siteName}
                 </span>
-                <span className="text-[11px] tracking-wide text-[#666666] font-medium mt-1">
+                <span className="text-[10px] sm:text-[11px] tracking-wide text-[#666666] font-medium mt-0.5 sm:mt-1 truncate">
                   {settings.siteSubtitle || 'Achi Soch Achi Zindagi'}
                 </span>
               </div>
@@ -75,7 +75,7 @@ export const Header: React.FC<HeaderProps> = ({
           </nav>
 
           {/* Zone 3: Primary Actions (Search & Account/Portal) */}
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             {/* Quick Search */}
             <button
               onClick={onOpenSearch}
@@ -86,50 +86,52 @@ export const Header: React.FC<HeaderProps> = ({
               <Search className="w-5 h-5" />
             </button>
 
-            {/* Auth / Account State */}
-            {currentUser ? (
-              <div className="flex items-center gap-2">
-                {currentUser.role === 'admin' ? (
-                  <button
-                    onClick={() => onNavigate('admin')}
-                    className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-[#111111] rounded-md hover:bg-neutral-800 transition-colors whitespace-nowrap shrink-0"
-                  >
-                    <ShieldCheck className="w-3.5 h-3.5" />
-                    Admin CMS
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => onNavigate('customer-account')}
-                    className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-[#111111] border border-[#111111] rounded-md hover:bg-[#F5F5F5] transition-colors whitespace-nowrap shrink-0"
-                  >
-                    <BookOpen className="w-3.5 h-3.5" />
-                    My Library
-                  </button>
-                )}
+            {/* Auth / Account State (Desktop & Tablet) */}
+            <div className="hidden sm:flex items-center gap-2">
+              {currentUser ? (
+                <>
+                  {currentUser.role === 'admin' ? (
+                    <button
+                      onClick={() => onNavigate('admin')}
+                      className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-[#111111] rounded-md hover:bg-neutral-800 transition-colors whitespace-nowrap shrink-0"
+                    >
+                      <ShieldCheck className="w-3.5 h-3.5" />
+                      Admin CMS
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => onNavigate('customer-account')}
+                      className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-[#111111] border border-[#111111] rounded-md hover:bg-[#F5F5F5] transition-colors whitespace-nowrap shrink-0"
+                    >
+                      <BookOpen className="w-3.5 h-3.5" />
+                      My Library
+                    </button>
+                  )}
 
+                  <button
+                    onClick={onLogout}
+                    className="p-2 text-[#666666] hover:text-[#111111] hover:bg-[#F5F5F5] rounded-full transition-colors"
+                    title="Sign out"
+                    aria-label="Sign out"
+                  >
+                    <LogOut className="w-4 h-4" />
+                  </button>
+                </>
+              ) : (
                 <button
-                  onClick={onLogout}
-                  className="p-2 text-[#666666] hover:text-[#111111] hover:bg-[#F5F5F5] rounded-full transition-colors"
-                  title="Sign out"
-                  aria-label="Sign out"
+                  onClick={onOpenAuth}
+                  className="flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-white bg-[#111111] rounded-md hover:bg-neutral-800 transition-colors whitespace-nowrap shrink-0"
                 >
-                  <LogOut className="w-4 h-4" />
+                  <LogIn className="w-3.5 h-3.5" />
+                  Account
                 </button>
-              </div>
-            ) : (
-              <button
-                onClick={onOpenAuth}
-                className="flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-white bg-[#111111] rounded-md hover:bg-neutral-800 transition-colors whitespace-nowrap shrink-0"
-              >
-                <LogIn className="w-3.5 h-3.5" />
-                Account
-              </button>
-            )}
+              )}
+            </div>
 
-            {/* Mobile Hamburger */}
+            {/* Mobile Hamburger Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 text-[#111111] hover:bg-[#F5F5F5] rounded-md focus:outline-none"
+              className="md:hidden p-2 text-[#111111] hover:bg-[#F5F5F5] rounded-md focus:outline-none transition-colors"
               aria-label="Toggle menu"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}

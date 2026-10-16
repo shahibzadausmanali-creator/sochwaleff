@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ArrowRight, Play } from 'lucide-react';
 import { HeroSlide } from '../types.js';
 
 interface HeroSliderProps {
@@ -12,14 +12,17 @@ interface HeroSliderProps {
 export const HeroSlider: React.FC<HeroSliderProps> = ({
   slides,
   autoSlide = true,
-  interval = 6000,
+  interval = 3000, // 3-second animation cycle
   onNavigateUrl
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
   const activeSlides = slides.filter(s => s.isActive);
 
+  // 3-second animation timer
   useEffect(() => {
     if (!autoSlide || isPaused || activeSlides.length <= 1) return;
     const timer = setInterval(() => {
@@ -30,8 +33,6 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({
 
   if (activeSlides.length === 0) return null;
 
-  const currentSlide = activeSlides[currentIndex] || activeSlides[0];
-
   const handlePrev = () => {
     setCurrentIndex(prev => (prev - 1 + activeSlides.length) % activeSlides.length);
   };
@@ -40,111 +41,153 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({
     setCurrentIndex(prev => (prev + 1) % activeSlides.length);
   };
 
-  const handleCtaClick = () => {
+  // Touch handlers for mobile swipe
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.targetTouches[0].clientX);
+    setIsPaused(true);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    setIsPaused(false);
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 35;
+    const isRightSwipe = distance < -35;
+    if (isLeftSwipe) {
+      handleNext();
+    } else if (isRightSwipe) {
+      handlePrev();
+    }
+    setTouchStart(null);
+    setTouchEnd(null);
+  };
+
+  const handleExploreClick = () => {
     if (onNavigateUrl) {
-      onNavigateUrl(currentSlide.ctaUrl);
-    } else if (currentSlide.ctaUrl.startsWith('#')) {
-      const elem = document.querySelector(currentSlide.ctaUrl);
-      if (elem) elem.scrollIntoView({ behavior: 'smooth' });
+      onNavigateUrl('#articles');
     } else {
-      window.location.href = currentSlide.ctaUrl;
+      const elem = document.querySelector('#articles') || document.querySelector('#books');
+      if (elem) elem.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const handleWatchNowClick = () => {
+    if (onNavigateUrl) {
+      onNavigateUrl('#videos');
+    } else {
+      const elem = document.querySelector('#videos');
+      if (elem) elem.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
   return (
     <section
-      className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-2"
+      className="w-full max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 pt-3 sm:pt-6 pb-2"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
       aria-label="Hero Highlights"
     >
-      <div className="relative aspect-[16/9] max-h-[480px] w-full bg-[#111111] overflow-hidden border border-[#E5E5E5] flex items-center shadow-sm">
-        {/* Full brightness slide image */}
-        <div className="absolute inset-0">
-          <img
-            key={currentSlide.imageUrl}
-            src={currentSlide.imageUrl}
-            alt={currentSlide.heading}
-            className="w-full h-full object-cover transition-opacity duration-700"
-            referrerPolicy="no-referrer"
-          />
-        </div>
-
-        {/* Content Container */}
-        <div className="relative z-10 px-6 sm:px-10 md:px-14 py-6 w-full">
-          <div className="max-w-xl space-y-3 sm:space-y-4">
-            <span className="text-[11px] uppercase tracking-widest text-white font-bold drop-shadow">
-              Soch Wale Focus
-            </span>
-
-            <h1
-              className={`text-xl sm:text-2xl md:text-4xl font-bold leading-tight text-white tracking-tight drop-shadow-md ${
-                /[\u0600-\u06FF]/.test(currentSlide.heading) ? 'font-urdu text-2xl sm:text-3xl md:text-4xl leading-relaxed' : 'font-editorial'
+      {/* 16:9 Aspect Ratio Slider Container */}
+      <div className="relative aspect-[16/9] min-h-[190px] sm:min-h-[260px] max-h-[460px] w-full bg-[#111111] overflow-hidden border border-[#E5E5E5] flex items-center shadow-sm select-none">
+        
+        {/* Smooth 3-Second Crossfade Slides (Full brightness, NO dark shade/overlay) */}
+        <div className="absolute inset-0 overflow-hidden">
+          {activeSlides.map((slide, idx) => (
+            <div
+              key={slide.id || idx}
+              className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+                idx === currentIndex ? 'opacity-100 z-10' : 'opacity-0 pointer-events-none z-0'
               }`}
-              dir={/[\u0600-\u06FF]/.test(currentSlide.heading) ? 'rtl' : 'ltr'}
             >
-              {currentSlide.heading}
-            </h1>
-
-            {currentSlide.subtitle && (
-              <p
-                className={`text-xs sm:text-sm md:text-base text-white/95 leading-relaxed drop-shadow line-clamp-2 sm:line-clamp-3 ${
-                  /[\u0600-\u06FF]/.test(currentSlide.subtitle) ? 'font-urdu text-sm sm:text-base' : ''
-                }`}
-                dir={/[\u0600-\u06FF]/.test(currentSlide.subtitle) ? 'rtl' : 'ltr'}
-              >
-                {currentSlide.subtitle}
-              </p>
-            )}
-
-            <div className="pt-1">
-              <button
-                onClick={handleCtaClick}
-                className="inline-flex items-center gap-1.5 px-4 sm:px-5 py-2 sm:py-2.5 bg-[#111111] text-white text-[11px] sm:text-xs uppercase tracking-widest font-bold hover:bg-neutral-800 transition-colors shadow-lg group border border-white/20"
-              >
-                <span>{currentSlide.ctaText || 'Read More'}</span>
-                <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-1" />
-              </button>
+              <img
+                src={slide.imageUrl}
+                alt={`Hero Slide ${idx + 1}`}
+                className="w-full h-full object-cover select-none pointer-events-none"
+                referrerPolicy="no-referrer"
+              />
             </div>
-          </div>
+          ))}
         </div>
 
-        {/* Navigation Arrows */}
+        {/* CTA Actions Only: "Explore" and "Watch Now" (Subtitle and Heading removed) */}
+        <div className="absolute bottom-3 sm:bottom-8 left-3 sm:left-8 z-20 flex flex-wrap items-center gap-2 sm:gap-3">
+          <button
+            onClick={handleExploreClick}
+            className="inline-flex items-center gap-1.5 px-3.5 sm:px-6 py-1.5 sm:py-2.5 bg-[#111111] text-white text-[10px] sm:text-xs uppercase tracking-widest font-bold hover:bg-neutral-800 transition-all shadow-xl active:scale-95 border border-white/20"
+          >
+            <span>Explore</span>
+            <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 transition-transform duration-200 group-hover:translate-x-1" />
+          </button>
+
+          <button
+            onClick={handleWatchNowClick}
+            className="inline-flex items-center gap-1.5 px-3.5 sm:px-6 py-1.5 sm:py-2.5 bg-white text-[#111111] text-[10px] sm:text-xs uppercase tracking-widest font-bold hover:bg-neutral-100 transition-all shadow-xl active:scale-95 border border-[#E5E5E5]"
+          >
+            <Play className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-current" />
+            <span>Watch Now</span>
+          </button>
+        </div>
+
+        {/* Navigation Arrows (Visible & touch-friendly on both mobile and desktop) */}
         {activeSlides.length > 1 && (
-          <div className="absolute right-4 sm:right-6 bottom-4 sm:bottom-6 hidden sm:flex items-center gap-2 z-20">
+          <div className="absolute right-2.5 sm:right-6 bottom-3 sm:bottom-8 flex items-center gap-1.5 sm:gap-2 z-20">
             <button
               onClick={handlePrev}
-              className="p-2 sm:p-2.5 bg-white/90 hover:bg-white text-[#111111] border border-[#E5E5E5] shadow transition-colors focus:outline-none"
+              className="p-1.5 sm:p-2.5 bg-white/90 hover:bg-white text-[#111111] border border-[#E5E5E5] shadow transition-colors focus:outline-none rounded-sm active:scale-95"
               aria-label="Previous slide"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </button>
             <button
               onClick={handleNext}
-              className="p-2 sm:p-2.5 bg-white/90 hover:bg-white text-[#111111] border border-[#E5E5E5] shadow transition-colors focus:outline-none"
+              className="p-1.5 sm:p-2.5 bg-white/90 hover:bg-white text-[#111111] border border-[#E5E5E5] shadow transition-colors focus:outline-none rounded-sm active:scale-95"
               aria-label="Next slide"
             >
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </button>
           </div>
         )}
 
-        {/* Pagination Bar */}
+        {/* 3-Second Animated Progress Bar & Pagination */}
         {activeSlides.length > 1 && (
-          <div className="absolute bottom-3 left-0 right-0 flex justify-center items-center gap-1.5 z-20">
+          <div className="absolute top-2.5 sm:top-3 right-2.5 sm:right-6 flex items-center gap-1.5 z-20 bg-black/50 backdrop-blur-sm px-2 sm:px-2.5 py-1 rounded-full">
             {activeSlides.map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => setCurrentIndex(idx)}
-                className={`h-1.5 transition-all duration-300 rounded-full ${
-                  idx === currentIndex ? 'w-6 bg-white shadow' : 'w-2.5 bg-white/50 hover:bg-white/80'
-                }`}
+                className="relative h-1.5 rounded-full overflow-hidden transition-all duration-300"
+                style={{ width: idx === currentIndex ? '24px' : '6px' }}
                 aria-label={`Slide ${idx + 1}`}
-              />
+              >
+                <div className="absolute inset-0 bg-white/30" />
+                {idx === currentIndex && (
+                  <div
+                    key={currentIndex}
+                    className="absolute inset-0 bg-white"
+                    style={{
+                      animation: `sliderProgress ${interval}ms linear forwards`
+                    }}
+                  />
+                )}
+              </button>
             ))}
           </div>
         )}
       </div>
+
+      <style>{`
+        @keyframes sliderProgress {
+          0% { width: 0%; }
+          100% { width: 100%; }
+        }
+      `}</style>
     </section>
   );
 };

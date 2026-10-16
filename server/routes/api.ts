@@ -457,8 +457,8 @@ I have placed an order for the following book:
 *Book Title:* ${book.title}
 *Total Amount:* ${amount} ${newOrder.currency}
 *Customer Name:* ${customerName}
-*Email:* ${customerEmail}
-*Payment Method:* JazzCash (${settings.jazzcashNumber} - ${settings.jazzcashAccountTitle})
+*Customer Gmail:* ${customerEmail}
+${customerPhone ? `*Customer Phone:* ${customerPhone}\n` : ''}*Payment Method:* JazzCash (${settings.jazzcashNumber} - ${settings.jazzcashAccountTitle})
 
 I would like to verify my payment. Thank you!`;
 
@@ -502,12 +502,13 @@ apiRouter.post('/orders/:orderNumber/payment-done', (req: Request, res: Response
   const whatsappNum = settings.whatsappNumber ? settings.whatsappNumber.replace(/[^0-9]/g, '') : '923032226181';
   const rawMessage = `Payment Submitted for Soch Wale Order:
 *Order Number:* ${order.orderNumber}
-*Book:* ${order.bookTitle}
-*Amount:* ${order.amount} ${order.currency}
-*Customer:* ${order.customerName}
-*Status:* Payment Done (Under Review)
-${transactionId ? `*TID:* ${transactionId}\n` : ''}
-Please verify and unlock my digital access.`;
+*Book Title:* ${order.bookTitle}
+*Total Amount:* ${order.amount} ${order.currency}
+*Customer Name:* ${order.customerName}
+*Customer Gmail:* ${order.customerEmail}
+${order.customerPhone ? `*Customer Phone:* ${order.customerPhone}\n` : ''}*Status:* Payment Done (Under Review)
+${transactionId ? `*JazzCash TID:* ${transactionId}\n` : ''}
+Please verify my JazzCash payment and unlock my digital PDF access.`;
 
   const whatsappUrl = `https://wa.me/${whatsappNum}?text=${encodeURIComponent(rawMessage)}`;
 
@@ -1130,25 +1131,26 @@ apiRouter.get('/admin/slides', requireAdmin, (req: AuthenticatedRequest, res: Re
 
 apiRouter.post('/admin/slides', requireAdmin, (req: AuthenticatedRequest, res: Response) => {
   const { heading, subtitle, ctaText, ctaUrl, imageUrl, sortOrder, isActive } = req.body;
-  if (!heading || !imageUrl) {
-    res.status(400).json({ error: 'Heading and image URL are required' });
+  if (!imageUrl) {
+    res.status(400).json({ error: 'Slide image URL is required' });
     return;
   }
 
   const data = db.getData();
+  const slideHeading = (heading && heading.trim()) || `Slide ${data.heroSlides.length + 1}`;
   const newSlide = {
     id: 'slide-' + Date.now(),
-    heading: heading.trim(),
+    heading: slideHeading,
     subtitle: subtitle || '',
-    ctaText: ctaText || 'Learn More',
-    ctaUrl: ctaUrl || '#',
-    imageUrl,
+    ctaText: ctaText || 'Explore',
+    ctaUrl: ctaUrl || '#articles',
+    imageUrl: imageUrl.trim(),
     sortOrder: Number(sortOrder) || (data.heroSlides.length + 1),
     isActive: isActive !== undefined ? Boolean(isActive) : true
   };
 
   data.heroSlides.push(newSlide);
-  db.logAudit('SLIDE_CREATE', req.user!.email, `Slide: ${newSlide.heading}`, `Added new hero slide.`);
+  db.logAudit('SLIDE_CREATE', req.user!.email, `Slide: ${newSlide.id}`, `Added new hero slide with Explore & Watch Now CTAs.`);
   db.save();
 
   res.json({ success: true, slide: newSlide });

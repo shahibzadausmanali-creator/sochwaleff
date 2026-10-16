@@ -229,7 +229,7 @@ function getDefaultDatabase(): DatabaseSchema {
         primaryColor: '#FFFFFF',
         secondaryColor: '#111111',
         heroAutoSlide: true,
-        heroInterval: 6000,
+        heroInterval: 3000,
         showFeaturedArticles: true,
         showLatestArticles: true,
         showFeaturedVideos: true,

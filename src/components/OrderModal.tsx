@@ -189,18 +189,18 @@ export const OrderModal: React.FC<OrderModalProps> = ({
 
               <div>
                 <label className="block text-xs font-semibold text-[#111111] uppercase tracking-wider mb-1">
-                  Email Address <span className="text-red-600">*</span>
+                  Gmail / Email Address <span className="text-red-600">*</span>
                 </label>
                 <input
                   type="email"
                   required
-                  placeholder="e.g. tariq@gmail.com"
+                  placeholder="e.g. yourname@gmail.com"
                   value={customerEmail}
                   onChange={(e) => setCustomerEmail(e.target.value)}
                   className="w-full px-3 py-2.5 text-sm border border-[#E5E5E5] focus:border-[#111111] focus:outline-none"
                 />
                 <span className="text-[11px] text-[#666666] mt-0.5 block">
-                  Access instructions and verified download will be attached to this email.
+                  Your Gmail will be attached to your order and sent in the WhatsApp verification message.
                 </span>
               </div>
 
@@ -371,24 +371,48 @@ export const OrderModal: React.FC<OrderModalProps> = ({
               )}
             </p>
 
-            {/* WhatsApp Direct Link (Specification Section 7) */}
-            <div className="p-4 bg-[#F5F5F5] border border-[#E5E5E5] text-left max-w-md mx-auto mb-6 space-y-2">
-              <div className="text-xs font-semibold text-[#111111] flex items-center gap-1.5">
-                <MessageCircle className="w-4 h-4 text-emerald-600" />
-                <span>Instant WhatsApp Verification</span>
-              </div>
-              <p className="text-xs text-[#666666]">
-                Click below to send your order details directly to our verification team on WhatsApp:
-              </p>
-              <a
-                href={whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block text-center py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider rounded transition-colors"
-              >
-                Send Order on WhatsApp
-              </a>
-            </div>
+            {/* WhatsApp Direct Link (Customer Gmail guaranteed in payload) */}
+            {(() => {
+              const whatsappNum = settings.whatsappNumber ? settings.whatsappNumber.replace(/[^0-9]/g, '') : '923032226181';
+              const messageText = `Assalam-o-Alaikum Soch Wale,
+I have placed an order for the following book:
+
+*Order Number:* ${createdOrder.orderNumber}
+*Book Title:* ${book.title}
+*Total Amount:* ${amount} ${settings.currency}
+*Customer Name:* ${customerName}
+*Customer Gmail:* ${customerEmail}
+${customerPhone ? `*Customer Phone:* ${customerPhone}\n` : ''}*Status:* ${orderFinalStatus === 'under_review' ? 'Payment Done (Under Review)' : 'Pending Payment'}
+${tid ? `*JazzCash TID:* ${tid}\n` : ''}
+Please verify my JazzCash payment for my Gmail account: ${customerEmail}. Thank you!`;
+
+              const computedWhatsappUrl = whatsappUrl || `https://wa.me/${whatsappNum}?text=${encodeURIComponent(messageText)}`;
+
+              return (
+                <div className="p-4 bg-[#F5F5F5] border border-[#E5E5E5] text-left max-w-md mx-auto mb-6 space-y-2">
+                  <div className="text-xs font-semibold text-[#111111] flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <MessageCircle className="w-4 h-4 text-emerald-600" />
+                      <span>Instant WhatsApp Verification</span>
+                    </div>
+                    <span className="text-[10px] font-mono bg-emerald-50 text-emerald-800 px-2 py-0.5 border border-emerald-200 rounded">
+                      Gmail Attached
+                    </span>
+                  </div>
+                  <p className="text-xs text-[#666666]">
+                    Click below to send order confirmation with your Gmail (<strong className="text-[#111111]">{customerEmail}</strong>) directly to Soch Wale on WhatsApp:
+                  </p>
+                  <a
+                    href={computedWhatsappUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block text-center py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider rounded transition-colors shadow-sm active:scale-95"
+                  >
+                    Send Order on WhatsApp ({customerEmail})
+                  </a>
+                </div>
+              );
+            })()}
 
             <div className="pt-2">
               <button

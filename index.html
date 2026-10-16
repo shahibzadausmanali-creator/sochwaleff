@@ -2,33 +2,25 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <script>
       (function() {
         try {
-          var _origFetch = window.fetch;
-          var _currentFetch = _origFetch ? _origFetch.bind(window) : undefined;
-          Object.defineProperty(window, 'fetch', {
-            get: function() { return _currentFetch; },
-            set: function(newFetch) { _currentFetch = newFetch; },
-            configurable: true,
-            enumerable: true
-          });
-        } catch (e) {
-          try {
-            var proto = Object.getPrototypeOf(window);
-            if (proto && Object.getOwnPropertyDescriptor(proto, 'fetch')) {
-              var _origFetch2 = window.fetch;
-              var _currentFetch2 = _origFetch2 ? _origFetch2.bind(window) : undefined;
-              Object.defineProperty(proto, 'fetch', {
-                get: function() { return _currentFetch2; },
-                set: function(newFetch) { _currentFetch2 = newFetch; },
+          var desc = Object.getOwnPropertyDescriptor(window, 'fetch');
+          if (desc && !desc.writable && !desc.set) {
+            var _origFetch = window.fetch;
+            var _currentFetch = _origFetch ? _origFetch.bind(window) : undefined;
+            try {
+              Object.defineProperty(window, 'fetch', {
+                get: function() { return _currentFetch; },
+                set: function(newFetch) { _currentFetch = newFetch; },
                 configurable: true,
                 enumerable: true
               });
-            }
-          } catch (err) {}
-        }
+            } catch (innerErr) {}
+          }
+        } catch (e) {}
       })();
     </script>
     <title>Soch Wale — Digital Publishing Platform & Bookstore</title>
@@ -39,7 +31,7 @@
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Gulzar&family=Noto+Nastaliq+Urdu:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   </head>
   <body class="bg-white text-[#111111] antialiased selection:bg-[#111111] selection:text-white">
     <div id="root"></div>
