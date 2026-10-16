@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100%" height="100%">
+  <defs>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.1"/>
+    </filter>
+  </defs>
+  <!-- Outer circular frame matching Soch Wale brand asset -->
+  <circle cx="250" cy="250" r="236" fill="#FFFFFF" stroke="#111111" stroke-width="14" filter="url(#shadow)" />
+  
+  <!-- Interlocking S and W Monogram -->
+  <g fill="#111111" transform="translate(10, 0)">
+    <!-- S flourish connecting into W -->
+    <path d="M 220 216 
+             C 214 216, 172 214, 154 228
+             C 134 244, 138 274, 154 300
+             C 172 328, 204 354, 218 372
+             C 210 354, 206 332, 212 312
+             C 216 300, 210 278, 192 272
+             C 176 266, 168 250, 174 238
+             C 180 228, 198 228, 216 238
+             Z" />
+             
+    <!-- Elegant Upper S curve -->
+    <path d="M 220 212
+             C 190 212, 152 222, 148 252
+             C 144 282, 178 300, 204 324
+             C 220 340, 224 358, 222 374
+             C 230 350, 240 318, 230 290
+             C 224 274, 204 260, 198 248
+             C 192 236, 202 226, 220 226
+             Z" />
+
+    <!-- Serif W Main Body -->
+    <!-- Left diagonal stem -->
+    <path d="M 216 216 
+             L 242 216 
+             L 226 374 
+             L 240 374 
+             L 282 236 
+             L 270 236 
+             L 270 216 
+             L 306 216 
+             L 306 236 
+             L 294 236 
+             L 264 336 
+             L 288 374 
+             L 304 374 
+             L 348 236 
+             L 336 236 
+             L 336 216 
+             L 376 216 
+             L 376 236 
+             L 362 236 
+             L 300 384 
+             L 282 384 
+             L 254 304 
+             L 228 384 
+             L 210 384 
+             Z" />
+             
+    <!-- Serif Head Bars on W -->
+    <rect x="268" y="214" width="38" height="6" rx="1" />
+    <rect x="336" y="214" width="40" height="6" rx="1" />
+  </g>
+</svg>

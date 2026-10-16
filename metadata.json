@@ -1,0 +1,6 @@
+{
+  "name": "Soch Wale",
+  "description": "Complete educational and digital publishing platform, digital bookstore, and WordPress-style CMS for Soch Wale.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
